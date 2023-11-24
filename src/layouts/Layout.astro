@@ -28,7 +28,6 @@ const { title } = Astro.props;
       entries.forEach((entry) => {
         const id = entry.target.id;
         const tocItem = document.querySelector(`[href="#${id}"]`);
-        const tocItems = document.querySelectorAll(".toc-item");
 
         if (entry.isIntersecting) {
           tocItem?.classList.add("active");
