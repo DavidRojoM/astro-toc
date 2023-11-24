@@ -1,24 +1,66 @@
 ---
-interface Item {
-  title: string;
-  href: string;
-}
-
+import TableOfContentList from "./TableOfContentList.astro";
+import {
+  type Item,
+  type ItemTree,
+  isItemTree,
+  itemTreeSymbol,
+} from "../models";
 interface Props {
-  items: Item[];
+  items: (Item | ItemTree)[];
+  path?: string | undefined;
 }
 
-const { items } = Astro.props;
+const { items, path } = Astro.props;
+
+const itemTree: ItemTree = {
+  [itemTreeSymbol]: true,
+};
+for (const item of items) {
+  buildTree(item, itemTree);
+}
+
+function buildTree(
+  itemOrTree: Item | ItemTree,
+  itemTree: ItemTree,
+  fullPath: string = ""
+) {
+  if (isItemTree(itemOrTree)) {
+    itemOrTree[path!] = itemOrTree;
+
+    return;
+  }
+  const [firstPath, ...restOfPaths] = itemOrTree.slug.split("/");
+
+  if (firstPath === undefined) {
+    return;
+  }
+
+  const newPath = fullPath ? `${fullPath}/${firstPath}` : firstPath;
+
+  if (restOfPaths.length === 0) {
+    itemTree[firstPath] = {
+      ...itemOrTree,
+      slug: newPath,
+    };
+    return;
+  }
+
+  if (itemTree[firstPath] === undefined) {
+    itemTree[firstPath] = {
+      [itemTreeSymbol]: true,
+    };
+  }
+
+  buildTree(
+    {
+      ...itemOrTree,
+      slug: restOfPaths.join("/"),
+    },
+    itemTree[firstPath] as ItemTree,
+    newPath
+  );
+}
 ---
 
-<ul class="w-full p-10">
-  {
-    items.map((item) => (
-      <li>
-        <a class="toc-item" href={item.href}>
-          {item.title}
-        </a>
-      </li>
-    ))
-  }
-</ul>
+<TableOfContentList itemTree={itemTree} />

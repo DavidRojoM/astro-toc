@@ -31,12 +31,8 @@ const { title } = Astro.props;
         const tocItems = document.querySelectorAll(".toc-item");
 
         if (entry.isIntersecting) {
-          tocItems.forEach((item) => {
-            item.classList.remove("active");
-          });
-
           tocItem?.classList.add("active");
-        } else if (!entry.isIntersecting && entry.boundingClientRect.top > 0) {
+        } else {
           tocItem?.classList.remove("active");
         }
       });
@@ -56,5 +52,9 @@ const { title } = Astro.props;
 <style is:global>
   .active {
     @apply bg-red-700;
+  }
+
+  * {
+    scroll-behavior: smooth;
   }
 </style>

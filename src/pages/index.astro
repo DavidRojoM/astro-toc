@@ -15,7 +15,7 @@ const blogPosts = await getCollection("blog");
     <TableOfContents
       items={blogPosts.map((post) => ({
         title: post.data.title,
-        href: `#${post.slug}`,
+        slug: post.slug,
       }))}
     />
   </aside>
